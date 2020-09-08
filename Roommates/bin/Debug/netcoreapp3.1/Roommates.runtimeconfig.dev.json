@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\Freeliu\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Freeliu\\.nuget\\packages"
+    ]
+  }
+}
