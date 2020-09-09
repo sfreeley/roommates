@@ -84,16 +84,36 @@ namespace Roommates
 
             Console.WriteLine($" BY ID: Roommate number {singleRoommate.Id}'s first name is: {singleRoommate.Firstname} \n last name is: {singleRoommate.Lastname} \n move-in-date: {singleRoommate.MoveInDate} \n rent portion: {singleRoommate.RentPortion}");
 
-            //Getting all the ROOMMATES and all the room info
+            //Getting all the ROOMMATES based on roomId
             Console.WriteLine("----------------------------");
             Console.WriteLine("Getting all roommates and all their room info");
 
-            List<Roommate> allRoommatesWithRooms = roommateRepo.GetAllWithRoom(1);
+            List<Roommate> allRoommatesWithRoom = roommateRepo.GetAllWithRoom(1);
 
-            foreach (Roommate roommateWithRooms in allRoommatesWithRooms)
+            foreach (Roommate roommateWithRoom in allRoommatesWithRoom)
             { 
-                Console.WriteLine($"{roommateWithRooms.Firstname} {roommateWithRooms.Lastname} is assigned {roommateWithRooms.Room}");
+                Console.WriteLine($"{roommateWithRoom.Id}: {roommateWithRoom.Firstname} {roommateWithRoom.Lastname} is assigned {roommateWithRoom.Room.Name}; \n This person pays {roommateWithRoom.RentPortion} and their move-in-date: {roommateWithRoom.MoveInDate}");
             }
+
+            //INSERT new Roommate
+            Roommate newRoommate = new Roommate
+            {
+                Firstname = "Frodo",
+                Lastname = "Baggins",
+                MoveInDate = new DateTime(2019, 4, 22),
+                RentPortion = 140,
+                Room = new Room()
+                {   
+                    Id = 1,
+                    Name = "Front Bedroom",
+                    MaxOccupancy = 7
+
+                }
+               
+            };
+
+            roommateRepo.Insert(newRoommate);
+
 
 
         }

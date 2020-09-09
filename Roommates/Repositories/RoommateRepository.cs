@@ -108,32 +108,31 @@ namespace Roommates.Repositories
                     cmd.Parameters.AddWithValue("@id", roomId);
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    Roommate roommate = null;
+                   
 
                     List<Roommate> roommates = new List<Roommate>();
+                    Roommate roommate = null;
 
                     while (reader.Read())
                     {
-                       roommate = new Roommate
+                        roommate = new Roommate
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Firstname = reader.GetString(reader.GetOrdinal("Firstname")),
                             Lastname = reader.GetString(reader.GetOrdinal("Lastname")),
                             RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
                             MoveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
-                            Room = 
+                            Room = new Room()
                             {
-                                Id = roomId,
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
                                 Name = reader.GetString(reader.GetOrdinal("Name")),
                                 MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
 
                             }
                         };
 
-                        roommates.Add(newRoommateWithRoom);
-
+                        roommates.Add(roommate);
                     }
-
                     reader.Close();
                     return roommates;
                 }
@@ -141,6 +140,33 @@ namespace Roommates.Repositories
 
         }
 
+        public void Insert(Roommate roommate)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    // These SQL parameters are annoying. Why can't we use string interpolation?
+                    // ... sql injection attacks!!!
+                    cmd.CommandText = @"INSERT INTO Roommate (Firstname, Lastname, RentPortion, MoveInDate) 
+                                         OUTPUT INSERTED.Id 
+                                         VALUES (@Firstname, @Lastname, @RentPortion, @MoveInDate)";
+                    cmd.Parameters.AddWithValue("@Firstname", roommate.Firstname);
+                    cmd.Parameters.AddWithValue("@Lastname", roommate.Lastname);
+                    cmd.Parameters.AddWithValue("@RentPortion", roommate.RentPortion);
+                    cmd.Parameters.AddWithValue("@MoveInDate", roommate.MoveInDate);
+                    //cmd.Parameters.AddWithValue("@id", roommate.Room);
+                    //executes the SQL command against the database; and RETURNS the first column and first row in the result set (additional columns or rows are ignored), which is the first thing in the database
+                    int id = (int)cmd.ExecuteScalar();
 
+
+                    //setting room Id after inserting in to database (database is where each room's id is getting created); the room parameter that gets passed into the method doesn't
+                    //have an id when the method begins, but once it gets returned, the id will be included (the job of OUTPUT INSERTED.Id) --usually with an INSERT statement, no records come back and nothing gets returned
+                    roommate.Id = id;
+                    
+                }
+            }
+        }
     }
 }
