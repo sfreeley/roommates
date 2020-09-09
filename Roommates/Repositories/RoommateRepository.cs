@@ -8,7 +8,8 @@ namespace Roommates.Repositories
 {
     public class RoommateRepository : BaseRepository
     {
-
+        //if using/inheriting a constructor in the base class that accepts a paramter, you have to make sure that your child class also allows that
+        //pass in the connectionString and pass that into the base class --> connectionString = address of the database; place we will go in our tunnel
         public RoommateRepository(string connectionString) : base(connectionString) { }
 
         public List<Roommate> GetAll()
@@ -64,34 +65,54 @@ namespace Roommates.Repositories
             }
         }
 
+        //returning a value Roommate;
         public Roommate GetById(int id)
         {
+            //use a connection (ie tunnel) --> real physical connection most likely through internet (if something is external to the program that you're using, you wrap it
+            //in a 'using' block (saying when I am connecting to database, do this between this block and close it when I'm not using it); Connection from baserepository 
             using (SqlConnection conn = Connection)
             {
+                //open the tunnel
                 conn.Open();
+                //connection knows how to create the command with (ie conn.CreateCommand());
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
+                    //have to tell the command what to get from the database-- your query (test your query in your query page)
                     cmd.CommandText = "SELECT Firstname, Lastname, RentPortion, MoveInDate FROM Roommate WHERE Id = @id";
+                    
+                    //because we need to add the value of Id, we use AddWithValue and pass it a value;
                     cmd.Parameters.AddWithValue("@id", id);
+
+                    //execute by sending it down the "tunnel" SQL command is happening in the database (VS tells SQL database what to get back with the query --> acting like a client (we are also building a client to talk with SQL server)
+                    //reader object gives us access to the result coming back from database;
                     SqlDataReader reader = cmd.ExecuteReader();
+
 
                     Roommate roommate = null;
 
+                    // if reader.Read() comes back false, it will be empty response (ie I don't have it)
                     if (reader.Read())
                     {
-                        roommate = new Roommate
+                        //since you're returning a roommate in this method, you want to instanstiate a new Roommate (new type of class)
+                       roommate = new Roommate()
                         {
+                           // The "ordinal" is the numeric position of the column in the query results.
+                           //  For our query, "Id" has an ordinal value of 0 and "Name" is 1 (this is based on the order of how you typed your query).
+                           // get the ordinal number of your id column
                             Id = id,
                             Firstname = reader.GetString(reader.GetOrdinal("Firstname")),
                             Lastname = reader.GetString(reader.GetOrdinal("Lastname")),
                             RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
                             MoveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
+                            // Room is a type of class and you can always set a class to null (but beware of the usage of null-more on that later);
                             Room = null
                         };
 
                     }
 
+                    //don't explicitly have to close the connection (the last curly brace will tell using block to close connection);
                     reader.Close();
+                    //because your return value with type Roommate, you are returning a Roommate
                     return roommate;
                 }
             }
