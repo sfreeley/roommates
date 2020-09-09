@@ -87,7 +87,7 @@ namespace Roommates.Repositories
                     //reader object gives us access to the result coming back from database;
                     SqlDataReader reader = cmd.ExecuteReader();
 
-
+                    //this method will return null if there isn't a record to get back (ie this is the worst case scenario) --> will throw exception if try to print out null value
                     Roommate roommate = null;
 
                     // if reader.Read() comes back false, it will be empty response (ie I don't have it)
@@ -111,8 +111,11 @@ namespace Roommates.Repositories
                     }
 
                     //don't explicitly have to close the connection (the last curly brace will tell using block to close connection);
+                    //don't put this in if block either, because saying if and only if reader.Read() is true will you close, but you need to close the connection regardless
                     reader.Close();
                     //because your return value with type Roommate, you are returning a Roommate
+                    //do not put inside if block because it is not guaranteed a return value
+                    //this is saying if there is an object to return, return the roommate object, otherwise return null declared on line 91;
                     return roommate;
                 }
             }
@@ -125,7 +128,7 @@ namespace Roommates.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT Roommate.Id AS RoommateId, Firstname, Lastname, RentPortion, MoveInDate, Name, MaxOccupancy, Room.Id AS RoomId FROM Roommate JOIN Room ON Roommate.RoomId = Room.id WHERE Room.id = @id";
+                    cmd.CommandText = "SELECT rm.Id AS RoommateId, rm.Firstname, rm.Lastname, rm.RentPortion, rm.MoveInDate, r.Name, r.MaxOccupancy, r.Id AS RoomId FROM Roommate rm JOIN Room r ON rm.RoomId = r.id WHERE r.id = @id";
                     cmd.Parameters.AddWithValue("@id", roomId);
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -133,9 +136,11 @@ namespace Roommates.Repositories
 
                     List<Roommate> roommates = new List<Roommate>();
                    
-
                     while (reader.Read())
                     {
+                        //you can also instanstiate here because you only need the Room in this loop block instead of declaring the Room room = null outside this while loop
+                        //Room room = new Room()
+                       // { } then can pass room into property Room = room OR can just instanstiate new Room() as value of Room property below
                         roommate = new Roommate
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("RoommateId")),
@@ -161,6 +166,7 @@ namespace Roommates.Repositories
 
         }
 
+        //insert method
         public void Insert(Roommate roommate)
         {
             using (SqlConnection conn = Connection)
@@ -169,7 +175,9 @@ namespace Roommates.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     // These SQL parameters are annoying. Why can't we use string interpolation?
-                    // ... sql injection attacks!!!
+                    // ... sql injection attacks!!! @ allows you to create a multi-line string without throwing error
+                    //using sql paramaters instead of string interpolation, we avoid possible malicious sql injection attacks where similar input can be injected as user data and delete or do something unwanted (ie getting sensitive information);
+                    //USE SQL PARAMETERS!
                     cmd.CommandText = @"INSERT INTO Roommate (Firstname, Lastname, RentPortion, MoveInDate, RoomId) 
                                          OUTPUT INSERTED.Id 
                                          VALUES (@Firstname, @Lastname, @RentPortion, @MoveInDate, @RoomId)";

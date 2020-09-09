@@ -15,7 +15,7 @@ namespace Roommates
 
         static void Main(string[] args)
         {
-            //creating new instance of a RoomRepository
+            //creating new instance of a RoomRepository and passing in the connection string (brings you to the roommaterepository --> the connectionstring then invoked in baserepo);
             RoomRepository roomRepo = new RoomRepository(CONNECTION_STRING);
 
             Console.WriteLine("Getting All Rooms:");
