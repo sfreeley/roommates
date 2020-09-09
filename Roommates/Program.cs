@@ -98,23 +98,25 @@ namespace Roommates
             //INSERT new Roommate
             Roommate newRoommate = new Roommate
             {
-                Firstname = "Frodo",
+                Firstname = "Frodossss",
                 Lastname = "Baggins",
                 MoveInDate = new DateTime(2019, 4, 22),
                 RentPortion = 140,
-                Room = new Room()
-                {   
-                    Id = 1,
-                    Name = "Front Bedroom",
-                    MaxOccupancy = 7
-
-                }
+                Room = singleRoom
                
             };
 
-            roommateRepo.Insert(newRoommate);
+            //roommateRepo.Insert(newRoommate);
 
+            //update
+            //roommateRepo.Update(newRoommate);
+            //Console.WriteLine("----------------------------");
+            //Console.WriteLine($"updated Frodo to {newRoommate.Firstname}");
 
+            //delete
+            roommateRepo.Delete(7);
+            Console.WriteLine("----------------------------");
+            Console.WriteLine($"Just deleted {newRoommate.Firstname} {newRoommate.Lastname}");
 
         }
     }
