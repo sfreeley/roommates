@@ -63,6 +63,7 @@ namespace Roommates.UserInterfaceManagers
             foreach (Room room in rooms)
             {
                 Console.WriteLine($"{room.Name} \n Max Occupancy: {room.MaxOccupancy}");
+                Console.WriteLine("-----------------------");
             }
         }
 
@@ -103,40 +104,25 @@ namespace Roommates.UserInterfaceManagers
         private void Add()
         {
             Room room = new Room();
-            try
+            string maxOcc;
+            do
             {
-              
-             
-                    Console.WriteLine("New Room");
-
-                    Console.Write("Room Name: ");
-                    room.Name = Console.ReadLine();
-
-                    Console.Write("Max Occupancy: ");
-                    room.MaxOccupancy = int.Parse(Console.ReadLine());
-
-            
-
-            }
-            catch (Exception ex)
-            {
-
-                Console.WriteLine("Invalid Response");
                 Console.WriteLine("New Room");
 
                 Console.Write("Room Name: ");
                 room.Name = Console.ReadLine();
 
                 Console.Write("Max Occupancy: ");
-                room.MaxOccupancy = int.Parse(Console.ReadLine());
-
-
+                maxOcc = Console.ReadLine();
+                
             }
+            while (string.IsNullOrWhiteSpace(room.Name) || string.IsNullOrWhiteSpace(maxOcc));
 
+            room.MaxOccupancy = int.Parse(maxOcc);
             _roomRepository.Insert(room);
         }
-
-
+           
+            
         private void Edit()
         {
             Room roomToEdit = ChooseRoom("Which room would you like to edit?");
