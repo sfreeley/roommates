@@ -11,7 +11,7 @@ namespace Roommates.UserInterfaceManagers
     {
         private readonly IUserInterfaceManager _parentUI;
 
-        public RoomRepository _roomRepository;
+        private RoomRepository _roomRepository;
 
         private string _connectionString;
 
@@ -105,6 +105,7 @@ namespace Roommates.UserInterfaceManagers
         {
             Room room = new Room();
             string maxOcc;
+            int respMaxOcc;
             do
             {
                 Console.WriteLine("New Room");
@@ -116,9 +117,9 @@ namespace Roommates.UserInterfaceManagers
                 maxOcc = Console.ReadLine();
                 
             }
-            while (string.IsNullOrWhiteSpace(room.Name) || string.IsNullOrWhiteSpace(maxOcc));
+            while (string.IsNullOrWhiteSpace(room.Name) || !Int32.TryParse(maxOcc, out respMaxOcc));
 
-            room.MaxOccupancy = int.Parse(maxOcc);
+            room.MaxOccupancy = respMaxOcc;
             _roomRepository.Insert(room);
         }
            
@@ -150,7 +151,7 @@ namespace Roommates.UserInterfaceManagers
 
         private void Remove()
         {
-            Room roomToDelete = ChooseRoom("Which author would you like to remove?");
+            Room roomToDelete = ChooseRoom("Which room would you like to remove?");
             if (roomToDelete != null)
             {
                 _roomRepository.Delete(roomToDelete.Id);

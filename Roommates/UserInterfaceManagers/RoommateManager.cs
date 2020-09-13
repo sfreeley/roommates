@@ -9,11 +9,13 @@ namespace Roommates.UserInterfaceManagers
 {
     class RoommateManager : IUserInterfaceManager
     {
-        //private readonly field with type IUserInterfaceManager that will bring user back to main menu (based on argument passed in the constructor);
+        //private readonly field with type IUserInterfaceManager that will bring user back to designated menu view (based on argument passed in the constructor);
         private readonly IUserInterfaceManager _parentUI;
 
         //Type Roommate Repository 
-        public RoommateRepository _roommateRepository;
+        private RoommateRepository _roommateRepository;
+
+        private RoomRepository _roomRepository;
 
         private string _connectionString;
 
@@ -22,6 +24,7 @@ namespace Roommates.UserInterfaceManagers
         {
             _parentUI = parentUI;
             _roommateRepository = new RoommateRepository(connectionString);
+            _roomRepository = new RoomRepository(connectionString);
             _connectionString = connectionString;
         }
 
@@ -63,11 +66,12 @@ namespace Roommates.UserInterfaceManagers
         //listing the roommates by first and last name;
         private void List()
         {
-            List<Roommate> roommates = _roommateRepository.GetAll();
+            List<Roommate> roommates = _roommateRepository.GetRoommatesWithRoom();
+           
 
             foreach (Roommate roommate in roommates)
             { 
-                Console.WriteLine($"{roommate.Firstname} {roommate.Lastname}");
+                Console.WriteLine($"{roommate.Firstname} {roommate.Lastname} \n Assigned Room: {roommate.Room.Name}");
             }
         }
 
@@ -96,7 +100,7 @@ namespace Roommates.UserInterfaceManagers
             {
                 // if the choice is not valid choice and throws an exception (ie not in the list of roommates or not a valid int)
                 // will trigger catch
-                // this will parse the string choice into proper int
+                // if able to parse this will parse the string choice into proper int
                 int choice = int.Parse(input);
                 // return the value of roommates list at that particular index - 1 since added 1 to i previously in order to not show user 0 as option;
                 return roommates[choice - 1];
@@ -133,7 +137,7 @@ namespace Roommates.UserInterfaceManagers
             string input = Console.ReadLine();
             try
             {
-                //if the choice is not valid choice and throws an exception (ie not in the list of rooms or not a valid int)
+                //if the choice is not valid choice and throws an exception (ie not in the list of rooms or not a valid input)
                 int choice = int.Parse(input);
                 //if valid choice, return the value of rooms list at particular index - 1
                 return rooms[choice - 1];
@@ -150,36 +154,39 @@ namespace Roommates.UserInterfaceManagers
         private void Add()
         {
             DateTime respDate;
+            int respPortion;
+            //create new instance of Room that is set to the value of the user's choice from method ChooseRoom() below;
+            Room newRoom;
+            string rentPortion;
             string moveInDate;
             //create new instance of a roommate
             Roommate roommate= new Roommate();
+            
             do
             {
-                Console.WriteLine("New Roommate");
+            Console.WriteLine("New Roommate");
 
-                Console.Write("First Name: ");
-                roommate.Firstname = Console.ReadLine();
+            Console.Write("First Name: ");
+            roommate.Firstname = Console.ReadLine();
 
-                Console.Write("Last Name: ");
-                roommate.Lastname = Console.ReadLine();
+            Console.Write("Last Name: ");
+            roommate.Lastname = Console.ReadLine();
 
-                Console.Write("RentPortion: ");
-                roommate.RentPortion = int.Parse(Console.ReadLine());
+            Console.Write("RentPortion: ");
+            rentPortion = Console.ReadLine();
 
-                Console.Write("Move-in Date (MM/DD/YYY): ");
-                moveInDate = Console.ReadLine();
-                roommate.MoveInDate = DateTime.Parse(moveInDate);
+            Console.Write("Move-in Date (MM/DD/YYY): ");
+            moveInDate = Console.ReadLine();
+
+            newRoom = ChooseRoom();
+
             }
-            while (roommate.Firstname == "" || roommate.Lastname == "" || roommate.RentPortion < 0 || !DateTime.TryParse(moveInDate, out respDate));
+            while (roommate.Firstname == "" || roommate.Lastname == "" || !Int32.TryParse(rentPortion, out respPortion) || !DateTime.TryParse(moveInDate, out respDate) || newRoom == null);
+        
+            roommate.RentPortion = respPortion;
+            roommate.MoveInDate = respDate;
 
-            //create new instance of Room that is set to the value of the user's choice from method ChooseRoom();
-            Room newRoom = ChooseRoom();
-            while (newRoom == null)
-            {
-                Console.WriteLine("Choose a Room");
-            }
-
-
+            //newRoom will hold the value of method from ChooseRoom() where user assigns room to the roommate;
             roommate.Room = newRoom;
             _roommateRepository.Insert(roommate);
         }
@@ -209,21 +216,70 @@ namespace Roommates.UserInterfaceManagers
             string rentPortion = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(rentPortion))
             {
-               roommateToEdit.RentPortion = int.Parse(rentPortion);
+                try
+                {
+                    roommateToEdit.RentPortion = int.Parse(rentPortion);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine("Invalid Input. Please Try Again.");
+                    Execute();
+                }
+               
             }
-            Console.Write("New Move In Date (blank to leave unchanged): ");
+            Console.Write("New Move In Date MM-DD-YYYY (blank to leave unchanged): ");
             string moveInDate = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(moveInDate))
             {
-                roommateToEdit.MoveInDate = DateTime.Parse(moveInDate);
+                try
+                {
+                    roommateToEdit.MoveInDate = DateTime.Parse(moveInDate);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Invalid Date Input. Please Try Again.");
+                    Execute();
+                }
+                
             }
 
-            Console.Write("Choose new Room: ");
-            Room room = ChooseRoom();
-            //if user does not choose anything, then the current room will be set to the room the current user chose;
-            if (room != null)
+            //get all room in list
+            Console.Write("Choose a New Room: ");
+            
+            List<Room> rooms = _roomRepository.GetAll();
+
+            
+            //iterate through the the rooms list and display each room's name and index +1;
+            for (int i = 0; i < rooms.Count; i++)
             {
-                roommateToEdit.Room = room;
+                Room room = rooms[i];
+                Console.WriteLine($"{i + 1} {room.Name}");
+            }
+            Console.WriteLine(">");
+            //read the user's choice for the room;
+            string userRoomChoice = Console.ReadLine();
+
+
+
+            //if user does not choose anything, then the current room will stay the same;
+            if (!string.IsNullOrWhiteSpace(userRoomChoice))
+            {
+                //will catch
+                try
+                {
+                    int userRoomChoiceIndex = int.Parse(userRoomChoice);
+                    roommateToEdit.Room = rooms[userRoomChoiceIndex - 1];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Invalid Room Choice. Please Try Again.");
+                    Execute();
+                }
+            }
+            else 
+            {
+                Console.WriteLine("Please choose a valid Room Choice.");
+                Execute();
             }
 
             _roommateRepository.Update(roommateToEdit);
@@ -231,7 +287,7 @@ namespace Roommates.UserInterfaceManagers
 
         private void Remove()
         {
-            Roommate roommateToDelete = ChooseRoommate("Which author would you like to remove?");
+            Roommate roommateToDelete = ChooseRoommate("Which Roommate would you like to remove?");
             if (roommateToDelete != null)
             {
                 _roommateRepository.Delete(roommateToDelete.Id);

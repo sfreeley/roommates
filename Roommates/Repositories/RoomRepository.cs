@@ -8,7 +8,7 @@ namespace Roommates.Repositories
     ///  This class is responsible for interacting with Room data.
     ///  It inherits from the BaseRepository class so that it can use the BaseRepository's Connection property
     /// </summary>
-    public class RoomRepository : BaseRepository
+    public class RoomRepository : BaseRepository, IRepository<Room>
     {
         /// <summary>
         ///  When new RoomRespository is instantiated, pass the connection string along to the BaseRepository

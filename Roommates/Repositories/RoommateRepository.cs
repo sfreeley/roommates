@@ -121,6 +121,7 @@ namespace Roommates.Repositories
             }
         }
 
+        //get all roommates in a specified room based on roomId
         public List<Roommate> GetAllWithRoom(int roomId)
         {
             using (SqlConnection conn = Connection)
@@ -141,6 +142,60 @@ namespace Roommates.Repositories
                         //you can also instanstiate here because you only need the Room in this loop block instead of declaring the Room room = null outside this while loop
                         //Room room = new Room()
                        // { } then can pass room into property Room = room OR can just instanstiate new Room() as value of Room property below
+                        roommate = new Roommate
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("RoommateId")),
+                            Firstname = reader.GetString(reader.GetOrdinal("Firstname")),
+                            Lastname = reader.GetString(reader.GetOrdinal("Lastname")),
+                            RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
+                            MoveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
+                            Room = new Room()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
+
+                            }
+                        };
+
+                        roommates.Add(roommate);
+                    }
+                    reader.Close();
+                    return roommates;
+                }
+            }
+
+        }
+
+        //get all Roommates and their rooms 
+        public List<Roommate> GetRoommatesWithRoom()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT rm.Id AS RoommateId, 
+                                        rm.Firstname, 
+                                        rm.Lastname, 
+                                        rm.RentPortion,
+                                        rm.MoveInDate,
+                                        r.Id AS RoomId,
+                                        r.Name,
+                                        r.MaxOccupancy
+                                        FROM Roommate rm
+                                        LEFT JOIN Room r ON rm.RoomId = r.Id";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Roommate roommate = null;
+
+                    List<Roommate> roommates = new List<Roommate>();
+
+                    while (reader.Read())
+                    {
+                        //you can also instanstiate here because you only need the Room in this loop block instead of declaring the Room room = null outside this while loop
+                        //Room room = new Room()
+                        // { } then can pass room into property Room = room OR can just instanstiate new Room() as value of Room property below
                         roommate = new Roommate
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("RoommateId")),
