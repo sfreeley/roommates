@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Roommates.Repositories
 {
-    public class RoommateRepository : BaseRepository
+    public class RoommateRepository : BaseRepository, IRepository<Roommate>
     {
         //if using/inheriting a constructor in the base class that accepts a paramter, you have to make sure that your child class also allows that
         //pass in the connectionString and pass that into the base class --> connectionString = address of the database; place we will go in our tunnel

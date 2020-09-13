@@ -119,11 +119,12 @@ namespace Roommates.UserInterfaceManagers
 
             Console.WriteLine(prompt);
 
-            List<Room> rooms = _roomRepository.GetAll();
+            RoomRepository roomRepository = new RoomRepository(_connectionString);
+            List<Room> rooms = roomRepository.GetAll();
 
             for (int i = 0; i < rooms.Count; i++)
             {
-                Roommate room = rooms[i];
+                Room room = rooms[i];
                 Console.WriteLine($"{i + 1} {room.Name}");
             }
             Console.Write("> ");
@@ -181,6 +182,60 @@ namespace Roommates.UserInterfaceManagers
 
             roommate.Room = newRoom;
             _roommateRepository.Insert(roommate);
+        }
+
+        private void Edit()
+        {
+            Roommate roommateToEdit = ChooseRoommate("Which roommate would you like to edit?");
+            if (roommateToEdit == null)
+            {
+                return;
+            }
+
+            Console.WriteLine();
+            Console.Write("New first name (blank to leave unchanged): ");
+            string firstName = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(firstName))
+            {
+                roommateToEdit.Firstname = firstName;
+            }
+            Console.Write("New last name (blank to leave unchanged): ");
+            string lastName = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(lastName))
+            {
+                roommateToEdit.Lastname = lastName;
+            }
+            Console.Write("New Rent Portion (blank to leave unchanged): ");
+            string rentPortion = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(rentPortion))
+            {
+               roommateToEdit.RentPortion = int.Parse(rentPortion);
+            }
+            Console.Write("New Move In Date (blank to leave unchanged): ");
+            string moveInDate = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(moveInDate))
+            {
+                roommateToEdit.MoveInDate = DateTime.Parse(moveInDate);
+            }
+
+            Console.Write("Choose new Room: ");
+            Room room = ChooseRoom();
+            //if user does not choose anything, then the current room will be set to the room the current user chose;
+            if (room != null)
+            {
+                roommateToEdit.Room = room;
+            }
+
+            _roommateRepository.Update(roommateToEdit);
+        }
+
+        private void Remove()
+        {
+            Roommate roommateToDelete = ChooseRoommate("Which author would you like to remove?");
+            if (roommateToDelete != null)
+            {
+                _roommateRepository.Delete(roommateToDelete.Id);
+            }
         }
 
     }
