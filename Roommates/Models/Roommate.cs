@@ -16,11 +16,9 @@ namespace Roommates.Models
         {
             get 
             {
-                return $"{FirstName} {LastName}";
+                return $"{Firstname} {Lastname}";
             }
-            
-
-
+           
         }
     }
 }

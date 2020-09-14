@@ -59,7 +59,7 @@ namespace Roommates.UserInterfaceManagers
 
             foreach (Chore chore in chores)
             {
-                Console.WriteLine($"{chore.Name}");
+                Console.WriteLine(chore.Name);
             }
         }
 

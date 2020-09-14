@@ -27,22 +27,18 @@ namespace Roommates.UserInterfaceManagers
             Roommate roommate = _roommateRepository.GetById(_roommateId);
             Console.WriteLine($"{roommate.FullName} Details");
             Console.WriteLine(" 1) View");
+            Console.WriteLine(" 2) Add Chore To Roommate");
             Console.WriteLine(" 0) Go Back");
 
             Console.Write("> ");
+            string choice = Console.ReadLine();
             switch (choice)
             {
                 case "1":
-                    View();
-                    return this;
+                   View();
+                   return this;
                 case "2":
-                    ViewBlogPosts();
-                    return this;
-                case "3":
-                    AddTag();
-                    return this;
-                case "4":
-                    RemoveTag();
+                    //add chore method;
                     return this;
                 case "0":
                     return _parentUI;
@@ -52,6 +48,15 @@ namespace Roommates.UserInterfaceManagers
             }
         }
 
-
+        private void View()
+        {
+            Roommate roommate = _roommateRepository.GetById(_roommateId);
+            Console.WriteLine($"Name: {roommate.FullName}");
+            Console.WriteLine($"Rent Portion: {roommate.RentPortion}");
+            Console.WriteLine($"Move In Date: {roommate.MoveInDate}");
+            Console.WriteLine($"Assigned Room: {roommate.Room.Name}");
+            //Console.WriteLine($"Assigned Chore:");
+            
+        }
     }
 }

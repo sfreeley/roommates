@@ -63,7 +63,7 @@ namespace Roommates.UserInterfaceManagers
                     }
                     else
                     {
-                        return new RoommateDetailManager(this, _connectionString);
+                        return new RoommateDetailManager(this, _connectionString, roommate.Id);
                     }
                 case "0":
                     return _parentUI;

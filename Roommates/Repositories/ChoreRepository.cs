@@ -28,11 +28,12 @@ namespace Roommates.Repositories
 
                     while (reader.Read())
                     {
-                        Chore chore = new Chore
+                        Chore chore = new Chore()
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name"))
                         };
+                        chores.Add(chore);
                     }
                     reader.Close();
                     return chores;
