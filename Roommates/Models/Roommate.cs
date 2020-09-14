@@ -12,12 +12,15 @@ namespace Roommates.Models
         public DateTime MoveInDate { get; set; }
         public Room Room { get; set; }
 
-        //public string GetFullName()
-        //{
+        public string FullName
+        {
+            get 
+            {
+                return $"{FirstName} {LastName}";
+            }
             
-        //        return $"{FirstName} {LastName}";
-            
-        
-        //}
+
+
+        }
     }
 }

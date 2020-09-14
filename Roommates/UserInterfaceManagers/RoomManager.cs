@@ -143,7 +143,16 @@ namespace Roommates.UserInterfaceManagers
             string maxOccupancy = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(maxOccupancy))
             {
-                roomToEdit.MaxOccupancy = int.Parse(maxOccupancy);
+                try
+                {
+                    roomToEdit.MaxOccupancy = int.Parse(maxOccupancy);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Not a valid number. Please try again.");
+                    Execute();
+                }
+                
             }
             
             _roomRepository.Update(roomToEdit);

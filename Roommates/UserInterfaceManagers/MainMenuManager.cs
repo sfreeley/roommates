@@ -20,7 +20,7 @@ namespace Roommates.UserInterfaceManagers
             Console.WriteLine(" 1) Room Management");
             Console.WriteLine(" 2) Roommate Management");
             Console.WriteLine(" 3) Change Background Color");
-            Console.WriteLine(" 4) Other function");
+            Console.WriteLine(" 4) Chore Management");
             Console.WriteLine(" 0) Exit");
 
             Console.Write("> ");
@@ -30,7 +30,7 @@ namespace Roommates.UserInterfaceManagers
                 case "1": return new RoomManager(this, CONNECTION_STRING);
                 case "2": return new RoommateManager(this, CONNECTION_STRING);
                 case "3": throw new NotImplementedException();
-                case "4": throw new NotImplementedException();
+                case "4": return new ChoreManager(this, CONNECTION_STRING);
                 case "0":
                     Console.WriteLine("Good bye");
                     return null;

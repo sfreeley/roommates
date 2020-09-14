@@ -55,6 +55,16 @@ namespace Roommates.UserInterfaceManagers
                 case "4":
                     Remove();
                     return this;
+                case "5":
+                    Roommate roommate = ChooseRoommate();
+                    if (roommate == null)
+                    {
+                        return this;
+                    }
+                    else
+                    {
+                        return new RoommateDetailManager(this, _connectionString);
+                    }
                 case "0":
                     return _parentUI;
                 default:
@@ -63,7 +73,7 @@ namespace Roommates.UserInterfaceManagers
             }
         }
 
-        //listing the roommates by first and last name;
+        //listing the roommates by first and last name and room name ;
         private void List()
         {
             List<Roommate> roommates = _roommateRepository.GetRoommatesWithRoom();
@@ -71,7 +81,7 @@ namespace Roommates.UserInterfaceManagers
 
             foreach (Roommate roommate in roommates)
             { 
-                Console.WriteLine($"{roommate.Firstname} {roommate.Lastname} \n Assigned Room: {roommate.Room.Name}");
+                Console.WriteLine($"{roommate.FullName} \n Assigned Room: {roommate.Room.Name}");
             }
         }
 
