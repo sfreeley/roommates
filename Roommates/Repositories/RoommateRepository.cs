@@ -52,6 +52,8 @@ namespace Roommates.Repositories
                             RentPortion = rentPortionValue,
                             MoveInDate = moveInDateValue,
                             Room = null
+                           
+                            
                         };
 
                         roommates.Add(newRoommate);
@@ -78,8 +80,23 @@ namespace Roommates.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     //have to tell the command what to get from the database-- your query (test your query in your query page)
-                    cmd.CommandText = "SELECT Firstname, Lastname, RentPortion, MoveInDate FROM Roommate WHERE Id = @id";
-                    
+                    cmd.CommandText = @"SELECT rm.Id AS RoommateId,
+                                        rm.Firstname,
+                                        rm.Lastname,
+                                        rm.RentPortion,
+                                        rm.MoveInDate,
+                                        c.Id AS ChoreId,
+                                        c.Name AS ChoreName,
+                                        r.Id AS RoomId,
+                                        r.Name,
+                                        r.MaxOccupancy,
+                                        rc.Id AS RoommateChoreId
+                                        FROM Roommate rm
+                                        LEFT JOIN Room r ON rm.RoomId = RoomId
+                                        LEFT JOIN RoommateChore rc ON RoommateId = rc.RoommateId
+                                        LEFT JOIN Chore c ON rc.ChoreId = ChoreId
+                                        WHERE rm.Id = @id";
+
                     //because we need to add the value of Id, we use AddWithValue and pass it a value;
                     cmd.Parameters.AddWithValue("@id", id);
 
@@ -90,7 +107,8 @@ namespace Roommates.Repositories
                     //this method will return null if there isn't a record to get back (ie this is the worst case scenario) --> will throw exception if try to print out null value
                     Roommate roommate = null;
 
-                    // if reader.Read() comes back false, it will be empty response (ie I don't have it)
+                    // if reader.Read() comes back false, it will be empty response (ie I don't have it); if returning only 1 result should
+                    //only need 'if' conditional and not looping 'while';
                     if (reader.Read())
                     {
                         //since you're returning a roommate in this method, you want to instanstiate a new Roommate (new type of class)
@@ -105,8 +123,22 @@ namespace Roommates.Repositories
                             RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
                             MoveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
                             // Room is a type of class and you can always set a class to null (but beware of the usage of null-more on that later);
-                            Room = null
+                            Room = new Room()
+                            { 
+                                Id = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
+                            }
                         };
+
+                        if (!reader.IsDBNull(reader.GetOrdinal("ChoreId")))
+                        {
+                            roommate.Chores.Add(new Chore()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("ChoreId")),
+                                Name = reader.GetString(reader.GetOrdinal("ChoreName"))
+                            });
+                        }
 
                     }
 
@@ -117,6 +149,42 @@ namespace Roommates.Repositories
                     //do not put inside if block because it is not guaranteed a return value
                     //this is saying if there is an object to return, return the roommate object, otherwise return null declared on line 91;
                     return roommate;
+                }
+            }
+        }
+
+        //adding Chore to Roommate using joint table;
+        public void InsertChore(Roommate roommate, Chore chore)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO RoommateChore (RoommateId, ChoreId)
+                                                       VALUES (@RoommateId, @ChoreId)";
+                    cmd.Parameters.AddWithValue("@RoommateId", roommate.Id);
+                    cmd.Parameters.AddWithValue("@ChoreId", chore.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        //deleting Chore from Roommate using joint table;
+        public void DeleteChore(int roommateId, int choreId)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"DELETE FROM RoommateChore 
+                                         WHERE RoommateId = @RoommateId AND 
+                                               ChoreId = @ChoreId";
+                    cmd.Parameters.AddWithValue("@RoommateId", roommateId);
+                    cmd.Parameters.AddWithValue("@ChoreId", choreId);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
@@ -141,7 +209,7 @@ namespace Roommates.Repositories
                     {
                         //you can also instanstiate here because you only need the Room in this loop block instead of declaring the Room room = null outside this while loop
                         //Room room = new Room()
-                       // { } then can pass room into property Room = room OR can just instanstiate new Room() as value of Room property below
+                        // { } then can pass room into property Room = room OR can just instanstiate new Room() as value of Room property below
                         roommate = new Roommate
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("RoommateId")),
@@ -156,6 +224,7 @@ namespace Roommates.Repositories
                                 MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
 
                             }
+                            
                         };
 
                         roommates.Add(roommate);
@@ -210,6 +279,7 @@ namespace Roommates.Repositories
                                 MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
 
                             }
+                           
                         };
 
                         roommates.Add(roommate);

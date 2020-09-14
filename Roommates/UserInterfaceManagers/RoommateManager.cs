@@ -56,6 +56,7 @@ namespace Roommates.UserInterfaceManagers
                     Remove();
                     return this;
                 case "5":
+                    //if "5" is chosen, this allows the user to choose the specific person they want to view details for;
                     Roommate roommate = ChooseRoommate();
                     if (roommate == null)
                     {
