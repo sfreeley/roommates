@@ -61,10 +61,10 @@ namespace Roommates.UserInterfaceManagers
             Console.WriteLine($"Rent Portion: {roommate.RentPortion}");
             Console.WriteLine($"Move In Date: {roommate.MoveInDate}");
             Console.WriteLine($"Assigned Room: {roommate.Room.Name}");
-            Console.WriteLine($"Assigned Chore:");
+            Console.WriteLine($"Assigned Chore(s):");
             foreach (Chore chore in roommate.Chores)
             {
-                Console.WriteLine(" " + chore);
+                Console.WriteLine(" " + chore.Name);
             }
             Console.WriteLine();
             

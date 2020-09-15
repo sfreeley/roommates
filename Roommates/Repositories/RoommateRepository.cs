@@ -109,27 +109,31 @@ namespace Roommates.Repositories
 
                     // if reader.Read() comes back false, it will be empty response (ie I don't have it); if returning only 1 result should
                     //only need 'if' conditional and not looping 'while';
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        //since you're returning a roommate in this method, you want to instanstiate a new Roommate (new type of class)
-                       roommate = new Roommate()
+                        if (roommate == null)
                         {
-                           // The "ordinal" is the numeric position of the column in the query results.
-                           //  For our query, "Id" has an ordinal value of 0 and "Name" is 1 (this is based on the order of how you typed your query).
-                           // get the ordinal number of your id column
-                            Id = id,
-                            Firstname = reader.GetString(reader.GetOrdinal("Firstname")),
-                            Lastname = reader.GetString(reader.GetOrdinal("Lastname")),
-                            RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
-                            MoveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
-                            // Room is a type of class and you can always set a class to null (but beware of the usage of null-more on that later);
-                            Room = new Room()
-                            { 
-                                Id = reader.GetInt32(reader.GetOrdinal("RoomId")),
-                                Name = reader.GetString(reader.GetOrdinal("Name")),
-                                MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
-                            }
-                        };
+                            //since you're returning a roommate in this method, you want to instanstiate a new Roommate (new type of class)
+                            roommate = new Roommate()
+                            {
+                                // The "ordinal" is the numeric position of the column in the query results.
+                                //  For our query, "Id" has an ordinal value of 0 and "Name" is 1 (this is based on the order of how you typed your query).
+                                // get the ordinal number of your id column
+                                Id = id,
+                                Firstname = reader.GetString(reader.GetOrdinal("Firstname")),
+                                Lastname = reader.GetString(reader.GetOrdinal("Lastname")),
+                                RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
+                                MoveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
+                                // Room is a type of class and you can always set a class to null (but beware of the usage of null-more on that later);
+                                Room = new Room()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                                    MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
+                                }
+                            };
+                        }
+                       
 
                         if (!reader.IsDBNull(reader.GetOrdinal("ChoreId")))
                         {
